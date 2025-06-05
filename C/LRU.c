@@ -68,7 +68,7 @@ void putLRUValue(LRU *lru, void *data)
     {
         printf("data alredy in LRU \n");
         DLLRemove(found->p_todll);
-        found->p_todll = DLLPushfront(lru->data_list, found);
+        found->p_todll = DLLPushfront(lru->data_list, data);
         return;
     }
 
