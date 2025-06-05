@@ -5,12 +5,13 @@
 
 static size_t hashFunc(void *val)
 {
-    return (*(((hashEntry *)val)->data)) % 3;
+    return (*((int *)val)) % 3;
 }
 
 static int matchFunc(void *data1, void *data2)
 {
-    return DLLGet((dll_iter_t)data1) == DLLGet((dll_iter_t)data2);
+
+    return DLLGet(DLLGet((dll_iter_t)data1)) == data2;
 }
 
 LRU *CreateLRU(size_t lruSize)
@@ -36,38 +37,32 @@ LRU *CreateLRU(size_t lruSize)
 
 void *seeRecentUsed(LRU *lru)
 {
-    hashEntry *leastUsed = DLLGet(DLLBegin(lru->data_list));
 
-    return leastUsed->data;
+    return DLLGet(DLLBegin(lru->data_list));
 }
 
 void *getLRUValue(LRU *lru, void *data)
 {
-    hashEntry *entry = (hashEntry *)malloc(sizeof(hashEntry));
-    entry->data = data;
-    hashEntry *foundHashEntry = HashFind(lru->hash, entry);
-
+    hashEntry *foundHashEntry = HashFind(lru->hash, data);
+    dll_iter_t nodeToRemove = foundHashEntry->p_todll;
     if (foundHashEntry == NULL)
     {
         printf("getLRUValue is NULL \n");
         return NULL;
     }
 
-    entry->p_todll = DLLPushfront(lru->data_list, entry);
-    DLLRemove(((hashEntry *)foundHashEntry)->p_todll);
+    DLLRemove((foundHashEntry)->p_todll);
+    foundHashEntry->p_todll = DLLPushfront(lru->data_list, data);
 
-    return foundHashEntry->data;
+    return DLLGet(foundHashEntry->p_todll);
 }
 
 void putLRUValue(LRU *lru, void *data)
 {
-    // value that will be inserted to list
-    // listValue *valueToInsert = (listValue *)malloc(sizeof(valueToInsert));
-    // entry be inserted to the hash_table
-    hashEntry *entry = (hashEntry *)malloc(sizeof(hashEntry));
-    entry->data = data;
 
-    hashEntry *found = HashFind(lru->hash, entry);
+    hashEntry *entry = (hashEntry *)malloc(sizeof(hashEntry));
+
+    hashEntry *found = HashFind(lru->hash, data);
 
     if (found != NULL)
     {
@@ -79,17 +74,16 @@ void putLRUValue(LRU *lru, void *data)
 
     if (lru->current_size == lru->hash_size)
     {
-        printf("remove LRU from Cache");
-        hashEntry *leastUsedData = DLLGet(DLLPrev(DLLEnd(lru->data_list)));
+        printf("remove LRU from Cache \n");
+        void *leastUsedData = DLLGet(DLLPrev(DLLEnd(lru->data_list)));
         HashRemove(lru->hash, leastUsedData);
         DLLPopback(lru->data_list);
         lru->current_size--;
     }
 
-    entry->data = data;
-    entry->p_todll = DLLPushfront(lru->data_list, entry);
+    entry->p_todll = DLLPushfront(lru->data_list, data);
+    printf("p_dll adress is %p \n", entry->p_todll);
     HashInsert(lru->hash, entry);
-
     lru->current_size++;
 }
 
@@ -106,8 +100,8 @@ void PrintLRUStatus(const LRU *lru)
     dll_iter_t it = DLLBegin(lru->data_list);       /* first real node */
     while (!DLLIsEqual(it, DLLEnd(lru->data_list))) /* until sentinel  */
     {
-        hashEntry *entry = (hashEntry *)DLLGet(it); /* node payload    */
-        printf("%d ", *(int *)entry->data);         /* user’s value    */
+        void *data = DLLGet(it);     /* node payload    */
+        printf("%d ", *(int *)data); /* user’s value    */
         it = DLLNext(it);
     }
     putchar('\n');
