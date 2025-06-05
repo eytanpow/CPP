@@ -81,10 +81,6 @@ status_t HashInsert(hash_t *hash, const void *data)
 	{
 		DLL_In_INdex(hash, index) = DLLCreate();
 	}
-	else
-	{
-		printf("duplicated index");
-	}
 
 	iter = DLLInsert(DLL_In_INdex(hash, index), DLLBegin(DLL_In_INdex(hash, index)), (void *)data);
 
@@ -110,7 +106,7 @@ void HashRemove(hash_t *hash, const void *data)
 
 	if (iter == DLLEnd(DLL_In_INdex(hash, index)))
 	{
-		printf("not found what to remove /n");
+		printf("not found what to remove \n");
 		return;
 	}
 	DLLRemove(iter);
