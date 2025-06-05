@@ -3,15 +3,22 @@
 #include "LRU.h"
 #include <stdlib.h>
 
+void PrintPointer(void *data)
+{
+    printf("%p ", (dll_iter_t)data);
+}
+
 static size_t hashFunc(void *val)
 {
     return (*((int *)val)) % 3;
 }
 
+// called in hash find
+// compares data of the dll to data recieved
+// data of the dll is of type hash entry which holds the pointer to the "Priority"
 static int matchFunc(void *data1, void *data2)
 {
-
-    return DLLGet(DLLGet((dll_iter_t)data1)) == data2;
+    return DLLGet(((hashEntry *)data1)->p_todll) == data2;
 }
 
 LRU *CreateLRU(size_t lruSize)
@@ -44,14 +51,14 @@ void *seeRecentUsed(LRU *lru)
 void *getLRUValue(LRU *lru, void *data)
 {
     hashEntry *foundHashEntry = HashFind(lru->hash, data);
-    dll_iter_t nodeToRemove = foundHashEntry->p_todll;
     if (foundHashEntry == NULL)
     {
         printf("getLRUValue is NULL \n");
         return NULL;
     }
 
-    DLLRemove((foundHashEntry)->p_todll);
+    dll_iter_t nodeToRemove = foundHashEntry->p_todll;
+    // DLLRemove((foundHashEntry)->p_todll);
     foundHashEntry->p_todll = DLLPushfront(lru->data_list, data);
 
     return DLLGet(foundHashEntry->p_todll);
@@ -82,8 +89,10 @@ void putLRUValue(LRU *lru, void *data)
     }
 
     entry->p_todll = DLLPushfront(lru->data_list, data);
-    printf("p_dll adress is %p \n", entry->p_todll);
+    // printf("p_dll  is %p \n", entry->p_todll);
     HashInsert(lru->hash, entry);
+
+    HashPrintAll(lru->hash, PrintPointer);
     lru->current_size++;
 }
 

@@ -76,7 +76,7 @@ status_t HashInsert(hash_t *hash, const void *data)
 	dll_iter_t iter = NULL;
 
 	index = hash->hash_func((void *)data);
-
+	
 	if (NULL == DLL_In_INdex(hash, index))
 	{
 		DLL_In_INdex(hash, index) = DLLCreate();
@@ -122,11 +122,11 @@ void *HashFind(const hash_t *hash, const void *data)
 
 	if (dll == NULL)
 	{
+		printf("Hash Find did not found data \n");
 		return NULL;
 	}
 
-	iter = DLLFind(DLLBegin(FindList((hash_t *)hash, (void *)data)),
-				   DLLEnd(FindList((hash_t *)hash, (void *)data)), hash->is_match, (void *)data);
+	iter = DLLFind(DLLBegin(dll), DLLEnd(dll), hash->is_match, (void *)data);
 
 	if (DLLIsEqual(iter, DLLEnd(dll)))
 	{
@@ -193,4 +193,23 @@ dll_t *FindList(hash_t *hash, void *data)
 	index = hash->hash_func(data);
 
 	return DLL_In_INdex(hash, index);
+}
+
+void HashPrintAll(const hash_t *hash, void (*print_func)(void *))
+{
+	size_t i = 0;
+
+	assert(hash != NULL);
+	assert(print_func != NULL);
+
+	for (i = 0; i < hash->table_size; ++i)
+	{
+		if (hash->table[i] != NULL && !DLLIsEmpty(hash->table[i]))
+		{
+			printf("Bucket %lu:\n", i);
+			DLLForEach(DLLBegin(hash->table[i]), DLLEnd(hash->table[i]),
+					   (action_func_t)print_func, NULL);
+			printf("\n");
+		}
+	}
 }

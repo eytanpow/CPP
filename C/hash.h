@@ -128,5 +128,6 @@ status_t HashForEach(hash_t *hash, action_func_t act_func, const void *params);
 /***********************my addition******************************************/
 size_t getKey(hash_t *hash, void *data);
 
+void HashPrintAll(const hash_t *hash, void (*print_func)(void *));
 
 #endif /* __HASH_H__ */
