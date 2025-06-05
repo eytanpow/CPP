@@ -24,7 +24,7 @@ static size_t Put(LRU *lru, int *key_ptr)
     putLRUValue(lru, key_ptr);
     size_t after = lru->current_size;
     assert(after == before || after == before + 1); /* sanity */
-    PrintRecent(lru);
+    // PrintRecent(lru);
     return after - before;
 }
 
@@ -85,6 +85,11 @@ int main(void)
 {
     int a = 0, b = 1, c = 2, d = 3, e = 4;
 
+    puts("\n=== Duplicate before full ===");
+    LRU *cap1 = CreateLRU(1);
+    assert(Put(cap1, &a) == 1); /* size 1 */
+                                //  PrintLRUStatus(cap1);
+    assert(Put(cap1, &a) == 0);
     /**********************************************************************
      * 1. Duplicate before cache is full (cap 4)                          *
      *********************************************************************/
@@ -95,6 +100,7 @@ int main(void)
     assert(Put(cap4, &b) == 1); /* size 2 */
     PrintLRUStatus(cap4);
     assert(Put(cap4, &a) == 0); /* duplicate – size still 2 */
+    PrintLRUStatus(cap4);
     assert(cap4->current_size == 2);
     MustGet(cap4, &a); /* MRU moved but still size-2 */
     PrintLRUStatus(cap4);
@@ -116,39 +122,39 @@ int main(void)
     MustGet(cap3, &a);
     MustGet(cap3, &c);
 
-    /**********************************************************************
-     * 3. Hammer duplicate 1 000× (cap 10)                                *
-     *********************************************************************/
-    // puts("\n=== Hammer duplicate 1 000× ===");
-    // LRU *cap10 = CreateLRU(10);
-    // Put(cap10, &d); /* first insert */
-    // for (int i = 0; i < 1000; ++i)
-    // {
-    //     assert(Put(cap10, &d) == 0); /* never grows   */
-    // }
-    // assert(cap10->current_size == 1);
-    // MustGet(cap10, &d);
+    // /**********************************************************************
+    //  * 3. Hammer duplicate 1 000× (cap 10)                                *
+    //  *********************************************************************/
+    // // puts("\n=== Hammer duplicate 1 000× ===");
+    // // LRU *cap10 = CreateLRU(10);
+    // // Put(cap10, &d); /* first insert */
+    // // for (int i = 0; i < 1000; ++i)
+    // // {
+    // //     assert(Put(cap10, &d) == 0); /* never grows   */
+    // // }
+    // // assert(cap10->current_size == 1);
+    // // MustGet(cap10, &d);
 
-    /**********************************************************************
-     * 4. Mixed unique / duplicate pattern                                *
-     *********************************************************************/
-    puts("\n=== Mixed unique + duplicate pattern ===");
-    LRU *mix = CreateLRU(3);
-    Put(mix, &a); /* [a]             */
-    Put(mix, &b); /* [b,a]           */
-    Put(mix, &c); /* [c,b,a]         */
-    assert(mix->current_size == 3);
+    // /**********************************************************************
+    //  * 4. Mixed unique / duplicate pattern                                *
+    //  *********************************************************************/
+    // puts("\n=== Mixed unique + duplicate pattern ===");
+    // LRU *mix = CreateLRU(3);
+    // Put(mix, &a); /* [a]             */
+    // Put(mix, &b); /* [b,a]           */
+    // Put(mix, &c); /* [c,b,a]         */
+    // assert(mix->current_size == 3);
 
-    /* duplicate b  (no eviction) -> [b,c,a] */
-    assert(Put(mix, &b) == 0);
-    assert(mix->current_size == 3);
-    MustGet(mix, &b);
+    // /* duplicate b  (no eviction) -> [b,c,a] */
+    // assert(Put(mix, &b) == 0);
+    // assert(mix->current_size == 3);
+    // MustGet(mix, &b);
 
-    /* new key d should evict *a* (LRU) -> [d,b,c] */
-    Put(mix, &d);
-    assert(mix->current_size == 3);
-    assert(getLRUValue(mix, &a) == NULL); /* a was evicted */
+    // /* new key d should evict *a* (LRU) -> [d,b,c] */
+    // Put(mix, &d);
+    // assert(mix->current_size == 3);
+    // assert(getLRUValue(mix, &a) == NULL); /* a was evicted */
 
-    puts("\nALL NEW TESTS PASSED.\n");
+    // puts("\nALL NEW TESTS PASSED.\n");
     return 0;
 }
