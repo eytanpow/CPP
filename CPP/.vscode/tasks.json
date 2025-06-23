@@ -1,0 +1,38 @@
+// .vscode/tasks.json
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build", // ← must match launch.json
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-g",
+				"-std=c++11",
+				"-pthread",
+				"-O0",
+				"-Wall",
+				"-Wextra",
+				"-Wpedantic",
+				"-Werror",
+				"-Wshadow",
+				// "-fstack-protector-all",
+				// "-fsanitize=address,undefined",
+				// "-D_GLIBCXX_DEBUG",
+				"${workspaceFolder}/main.cpp",
+				"-o",
+				"${workspaceFolder}/bin/app"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
