@@ -10,7 +10,7 @@ void PrintPointer(void *data)
 
 static size_t hashFunc(void *val)
 {
-    return (*((int *)val)) % 3;
+    return (*(int *)DLLGet((dll_iter_t)val)) % 3;
 }
 
 // called in hash find
@@ -69,14 +69,24 @@ void putLRUValue(LRU *lru, void *data)
 
     hashEntry *entry = (hashEntry *)malloc(sizeof(hashEntry));
 
-    hashEntry *found = HashFind(lru->hash, data);
-
-    if (found != NULL)
+    if (lru->current_size > 0)
     {
-        printf("data alredy in LRU \n");
-        DLLRemove(found->p_todll);
-        found->p_todll = DLLPushfront(lru->data_list, data);
-        return;
+        struct fake_node
+        {
+            void *data;
+            void *next;
+            void *prev;
+        };
+        struct fake_node probe = {.data = &data};
+        hashEntry *found = HashFind(lru->hash, &probe);
+
+        if (found != NULL)
+        {
+            printf("data alredy in LRU \n");
+            DLLRemove(found->p_todll);
+            found->p_todll = DLLPushfront(lru->data_list, data);
+            return;
+        }
     }
 
     if (lru->current_size == lru->hash_size)

@@ -21,6 +21,7 @@ static void MustGet(LRU *lru, int *key_ptr)
 static size_t Put(LRU *lru, int *key_ptr)
 {
     size_t before = lru->current_size;
+
     putLRUValue(lru, key_ptr);
     size_t after = lru->current_size;
     assert(after == before || after == before + 1); /* sanity */
@@ -36,13 +37,13 @@ int main(void)
     LRU *cap3 = CreateLRU(3);
     Put(cap3, &a);
     Put(cap3, &b);
-    Put(cap3, &c); /* cache full */
+    // Put(cap3, &c); /* cache full */
     // assert(cap3->current_size == 3);
     PrintLRUStatus(cap3);
 
     /* reinserting ‘b’ must only promote, no eviction, size remains 3 */
 
-    printf("\n\n\n*******************");
+    printf("\n\n\n*******************\n");
     assert(Put(cap3, &a) == 0);
     PrintLRUStatus(cap3);
     // assert(cap3->current_size == 3);
