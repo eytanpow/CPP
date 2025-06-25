@@ -2,39 +2,50 @@
 #include <unordered_map>
 #include <iostream>
 
-class Solution
-{
-public:
-    int lengthOfLongestSubstring(std::string s)
-    {
-        int size = s.length();
-        if(size == 0)
-        {
-            return 0;
-        }
-        int start = 0, end = 1;
-        int length = 1;
-        int currentLength = 1;
-        std::unordered_map<char, int> map;
-        map[s[start]] = start;
+// Intuition
+// <!need somehow to save what letters already passed on>
+// + substring is kind of two pointers
 
+// # Approach
+// <!-- two -->
+
+// # Complexity
+// - Time complexity:
+// <!O(n)>
+
+// - Space complexity:
+//  <-- $$O(1) -->
+
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(std::string s) {
+        int size = s.length();
+        int start = 0, end = 0;
+        int length = 0;
+        int currentLength = 0;
+        std::unordered_map<char, int> map;
 
         while (end < size)
         {
-            if (map.find(s[end]) == map.end())
+            char c = s[end];
+            if (map.find(c) == map.end() || map[c] < start)
             {
-                map[s[end]] = end;
+                map[c] = end;
                 end++;
                 currentLength++;
             }
             else
             {
-                map.erase(s[start]);
+                // map.erase(s[start]);
+                start = map[c] + 1;
+                map[c] = end;
+
                 if (currentLength > length)
                 {
                     length = currentLength;
                 }
-                start++;
+                end++;
                 currentLength = end - start;
             }
         }
@@ -46,12 +57,16 @@ public:
 
         return length;
     }
+    
+
+    
 };
+```
 
 int main()
 {
 
-    std::string s = "aaab";
+    std::string s = "aaaabc";
     Solution myS;
     std::cout << myS.lengthOfLongestSubstring(s) << std::endl;
 
